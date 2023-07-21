@@ -1,11 +1,7 @@
 const Calculation = require("../models/Calculation");
-const User = require("../models/Calculation");
-require("dotenv").config();
 
-exports.add = async (req, res, next) => {
+exports.add = async (req, res) => {
   try {
-    // let num1 = Number(req.params.num1);
-    // let num2 = Number(req.params.num2);
     let num1 = Number(req.query.num1);
     let num2 = Number(req.query.num2);
 
@@ -17,26 +13,28 @@ exports.add = async (req, res, next) => {
       });
       return;
     }
+
     const cal = new Calculation({
       operation: "add",
       num1: num1,
       num2: num2,
       result: result,
     });
-    const response = await cal.save();
+    await cal.save();
+
     res.status(200).json({
       status: "success",
       equation: `${num1} + ${num2}`,
       result: result,
     });
-    next();
   } catch (err) {
     return res.status(400).json({
       error: "Error in DB",
     });
   }
 };
-exports.subtract = async (req, res, next) => {
+
+exports.subtract = async (req, res) => {
   try {
     let num1 = Number(req.query.num1);
     let num2 = Number(req.query.num2);
@@ -49,29 +47,39 @@ exports.subtract = async (req, res, next) => {
       });
       return;
     }
+
     const cal = new Calculation({
       operation: "subtract",
       num1: num1,
       num2: num2,
       result: result,
     });
-    const response = await cal.save();
+    await cal.save();
+
     res.status(200).json({
       status: "success",
       equation: `${num1} - ${num2}`,
       result: result,
     });
-    next();
   } catch (err) {
     return res.status(400).json({
       error: "Error in DB",
     });
   }
 };
-exports.divide = async (req, res, next) => {
+
+exports.divide = async (req, res) => {
   try {
     let num1 = Number(req.query.num1);
     let num2 = Number(req.query.num2);
+
+    if (num2 === 0) {
+      res.status(403).json({
+        status: "error",
+        message: "Divisor can't be zero",
+      });
+      return;
+    }
 
     let result = num1 / num2;
     if (isNaN(result)) {
@@ -81,26 +89,28 @@ exports.divide = async (req, res, next) => {
       });
       return;
     }
+
     const cal = new Calculation({
       operation: "divide",
       num1: num1,
       num2: num2,
       result: result,
     });
-    const response = await cal.save();
+    await cal.save();
+
     res.status(200).json({
       status: "success",
       equation: `${num1} / ${num2}`,
       result: result,
     });
-    next();
   } catch (err) {
     return res.status(400).json({
       error: "Error in DB",
     });
   }
 };
-exports.multiply = async (req, res, next) => {
+
+exports.multiply = async (req, res) => {
   try {
     let num1 = Number(req.query.num1);
     let num2 = Number(req.query.num2);
@@ -113,26 +123,28 @@ exports.multiply = async (req, res, next) => {
       });
       return;
     }
+
     const cal = new Calculation({
       operation: "multiply",
       num1: num1,
       num2: num2,
       result: result,
     });
-    const response = await cal.save();
+    await cal.save();
+
     res.status(200).json({
       status: "success",
       equation: `${num1} * ${num2}`,
       result: result,
     });
-    next();
   } catch (err) {
     return res.status(400).json({
       error: "Error in DB",
     });
   }
 };
-exports.exponent = async (req, res, next) => {
+
+exports.exponent = async (req, res) => {
   try {
     let num1 = Number(req.query.num1);
     let num2 = Number(req.query.num2);
@@ -145,33 +157,33 @@ exports.exponent = async (req, res, next) => {
       });
       return;
     }
+
     const cal = new Calculation({
       operation: "exponent",
       num1: num1,
       num2: num2,
       result: result,
     });
-    const response = await cal.save();
+    await cal.save();
+
     res.status(200).json({
       status: "success",
       equation: `${num1} ** ${num2}`,
       result: result,
     });
-    next();
   } catch (err) {
     return res.status(400).json({
       error: "Error in DB",
     });
   }
 };
-exports.history = async (req, res, next) => {
+
+exports.history = async (req, res) => {
   try {
-    const history = await Calculation.find().exec();
-    history.reverse();
+    const history = await Calculation.find().sort({ _id: -1 }).exec();
     res.json({
       history,
     });
-    next();
   } catch (error) {
     console.log(error);
     return res.status(400).json({
